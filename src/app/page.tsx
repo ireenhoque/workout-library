@@ -1,7 +1,12 @@
+import Banner from "./components/homepage/Banner";
+import Footer from "./components/shared/Footer";
 
 
 export default function Home() {
   return (
-    <h2>Homepage</h2>
+    <div>
+      <Banner />
+      <Footer/>
+    </div>
   );
 }
