@@ -1,6 +1,6 @@
 import Banner from "./components/homepage/Banner";
 import LibrarySection from "./components/homepage/LibrarySection";
-import Footer from "./components/shared/Footer";
+
 
 
 export default function Home() {
@@ -8,7 +8,7 @@ export default function Home() {
     <div>
       <Banner />
       <LibrarySection />
-      <Footer/>
+      
     </div>
   );
 }
