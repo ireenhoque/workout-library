@@ -1,14 +1,23 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { Clock3, Flame, Star, X } from "lucide-react";
+import Image from "next/image";
+
+import {
+  ChevronDown,
+  Clock3,
+  Flame,
+  Star,
+  X,
+} from "lucide-react";
 
 import { ILift } from "@/type/lift.type";
 import { useWorkout } from "@/context/WorkoutContext";
-import Image from "next/image";
 
 type ActiveTab = "plan" | "saved";
+
+type SortOption = "duration" | "calories" | "rating";
 
 const MyPlanPage = () => {
   const {
@@ -18,27 +27,45 @@ const MyPlanPage = () => {
     removeSavedWorkout,
   } = useWorkout();
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>("plan");
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] =
+    useState<ActiveTab>("plan");
 
-  useEffect(() => {
-    const loadWorkouts = async () => {
-      try {
-        await fetch("https://api.abcz.workers.dev/api/fitlog");
-      } catch (error) {
-        console.error("Failed to load workouts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [sortBy, setSortBy] =
+    useState<SortOption>("duration");
 
-    loadWorkouts();
-  }, []);
+  // Current list based on active tab
+  const currentList =
+    activeTab === "plan"
+      ? todaysPlan
+      : savedWorkouts;
 
-  // =========================
-  // Metrics
-  // =========================
+  // Sort current list
+  const sortedList = useMemo(() => {
+    const sorted = [...currentList];
 
+    if (sortBy === "duration") {
+      sorted.sort(
+        (a, b) => a.duration - b.duration
+      );
+    }
+
+    if (sortBy === "calories") {
+      sorted.sort(
+        (a, b) =>
+          a.caloriesBurned - b.caloriesBurned
+      );
+    }
+
+    if (sortBy === "rating") {
+      sorted.sort(
+        (a, b) => b.rating - a.rating
+      );
+    }
+
+    return sorted;
+  }, [currentList, sortBy]);
+
+  // Today's Plan metrics
   const totalMinutes = useMemo(() => {
     return todaysPlan.reduce(
       (total, lift) => total + lift.duration,
@@ -48,38 +75,33 @@ const MyPlanPage = () => {
 
   const totalCalories = useMemo(() => {
     return todaysPlan.reduce(
-      (total, lift) => total + lift.caloriesBurned,
+      (total, lift) =>
+        total + lift.caloriesBurned,
       0
     );
   }, [todaysPlan]);
-
-  const currentList =
-    activeTab === "plan"
-      ? todaysPlan
-      : savedWorkouts;
 
   return (
     <main className="min-h-screen bg-[#0C0D10] px-4 py-10 sm:px-6 lg:px-8">
       <section className="container mx-auto">
 
-        {/* =========================
-            Page Heading
-        ========================== */}
-
+        {/* ========================================
+            PAGE HEADER
+        ========================================= */}
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             MY PLAN
           </h1>
 
           <p className="mt-2 text-sm text-[#9CA3AF]">
-            Cap of five lifts for today. Finish them, then load more.
+            Cap of five lifts for today. Finish them,
+            then load more.
           </p>
         </div>
 
-        {/* =========================
-            Metric Cards
-        ========================== */}
-
+        {/* ========================================
+            METRICS
+        ========================================= */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
           <MetricCard
@@ -99,54 +121,101 @@ const MyPlanPage = () => {
 
         </div>
 
-        {/* =========================
-            Tabs
-        ========================== */}
+        {/* ========================================
+            TABS + SORT
+        ========================================= */}
+        <div className="mt-8 flex flex-col gap-4 border-b border-[#252932] sm:flex-row sm:items-end sm:justify-between">
 
-        <div className="mt-8 flex gap-2 border-b border-[#252932]">
+          {/* Tabs */}
+          <div className="flex gap-2">
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("plan")}
-            className={`px-5 py-3 text-xs font-bold transition ${activeTab === "plan"
-                ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
-                : "text-[#6B7280] hover:text-white"
+            <button
+              type="button"
+              onClick={() =>
+                setActiveTab("plan")
+              }
+              className={`px-5 py-3 text-xs font-bold transition ${
+                activeTab === "plan"
+                  ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
+                  : "text-[#6B7280] hover:text-white"
               }`}
-          >
-            TODAY'S PLAN
-          </button>
+            >
+              TODAY'S PLAN
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("saved")}
-            className={`px-5 py-3 text-xs font-bold transition ${activeTab === "saved"
-                ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
-                : "text-[#6B7280] hover:text-white"
+            <button
+              type="button"
+              onClick={() =>
+                setActiveTab("saved")
+              }
+              className={`px-5 py-3 text-xs font-bold transition ${
+                activeTab === "saved"
+                  ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
+                  : "text-[#6B7280] hover:text-white"
               }`}
-          >
-            SAVED
-          </button>
+            >
+              SAVED
+            </button>
+
+          </div>
+
+          {/* ========================================
+              SORT DROPDOWN
+          ========================================= */}
+          <div className="relative mb-2 w-full sm:w-48">
+
+            <label
+              htmlFor="sort-workouts"
+              className="sr-only"
+            >
+              Sort workouts
+            </label>
+
+            <select
+              id="sort-workouts"
+              value={sortBy}
+              onChange={(event) =>
+                setSortBy(
+                  event.target.value as SortOption
+                )
+              }
+              className="w-full appearance-none rounded-md border border-[#363A43] bg-[#15171E] py-3 pl-4 pr-10 text-xs font-bold uppercase tracking-wide text-white outline-none transition focus:border-[#CCFF00]"
+            >
+              <option value="duration">
+                Duration
+              </option>
+
+              <option value="calories">
+                Calories
+              </option>
+
+              <option value="rating">
+                Rating
+              </option>
+            </select>
+
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#CCFF00]"
+            />
+
+          </div>
 
         </div>
 
-        {/* =========================
-            Workout List
-        ========================== */}
-
+        {/* ========================================
+            WORKOUT LIST
+        ========================================= */}
         <div className="mt-6">
 
-          {loading ? (
-            <div className="py-16 text-center">
-              <p className="text-sm text-[#9CA3AF]">
-                Loading workouts…
-              </p>
-            </div>
-          ) : currentList.length === 0 ? (
-            <EmptyState />
+          {sortedList.length === 0 ? (
+            <EmptyState
+              isPlan={activeTab === "plan"}
+            />
           ) : (
             <div className="space-y-4">
 
-              {currentList.map((lift) => (
+              {sortedList.map((lift) => (
                 <PlanWorkoutCard
                   key={lift.id}
                   lift={lift}
@@ -173,7 +242,7 @@ const MyPlanPage = () => {
 
 
 // =====================================================
-// MetricCard
+// METRIC CARD
 // =====================================================
 
 const MetricCard = ({
@@ -200,7 +269,7 @@ const MetricCard = ({
 
 
 // =====================================================
-// PlanWorkoutCard
+// PLAN WORKOUT CARD
 // =====================================================
 
 const PlanWorkoutCard = ({
@@ -215,8 +284,9 @@ const PlanWorkoutCard = ({
   return (
     <article className="flex flex-col gap-5 rounded-xl border border-[#252932] bg-[#15171E] p-4 sm:flex-row sm:items-center">
 
-      {/* Image */}
+      {/* Workout Image */}
       <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-40">
+
         <Image
           src={lift.image}
           alt={lift.name}
@@ -224,9 +294,10 @@ const PlanWorkoutCard = ({
           sizes="(max-width: 640px) 100vw, 160px"
           className="object-cover"
         />
+
       </div>
 
-      {/* Content */}
+      {/* Workout Information */}
       <div className="min-w-0 flex-1">
 
         <h3 className="text-lg font-bold uppercase text-white">
@@ -304,10 +375,14 @@ const PlanWorkoutCard = ({
 
 
 // =====================================================
-// EmptyState
+// EMPTY STATE
 // =====================================================
 
-const EmptyState = () => {
+const EmptyState = ({
+  isPlan,
+}: {
+  isPlan: boolean;
+}) => {
   return (
     <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-[#30343D] bg-[#111318] px-6 text-center">
 
@@ -316,11 +391,13 @@ const EmptyState = () => {
       </h2>
 
       <p className="mt-2 max-w-md text-sm text-[#6B7280]">
-        Browse the library and add a lift to get today moving.
+        {isPlan
+          ? "Browse the library and add a lift to get today moving."
+          : "Save a workout from the library to see it here."}
       </p>
 
       <Link
-        href="/"
+        href="/#library"
         className="mt-6 rounded-md bg-[#CCFF00] px-5 py-3 text-xs font-bold text-black transition hover:bg-[#B3E600]"
       >
         GO TO WORKOUTS
