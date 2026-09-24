@@ -1,23 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
 import Navbar from "./components/shared/Navbar";
 import Footer from "./components/shared/Footer";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+import { WorkoutProvider } from "@/context/WorkoutContext";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
     title: "FitLog | Workout Library",
-    description:
-        "Track your workouts, plan your training, and log every set.",
+    description: "Track your workouts and build your plan.",
 };
 
 export default function RootLayout({
@@ -26,23 +17,32 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html
-            lang="en"
-            data-theme="dark"
-            className={`${geistSans.variable} ${geistMono.variable}`}
-        >
-            <body className="flex min-h-screen flex-col bg-[#0C0D10] text-white antialiased">
+        <html lang="en">
+            <body className="flex min-h-screen flex-col bg-[#0C0D10] text-white">
 
-                {/* Navbar */}
-                <Navbar />
+                <WorkoutProvider>
 
-                {/* Page Content */}
-                <main className="flex-1">
-                    {children}
-                </main>
+                    <Navbar />
 
-                {/* Footer */}
-                <Footer />
+                    <main className="flex-1">
+                        {children}
+                    </main>
+
+                    <Footer />
+
+                    <Toaster
+                        position="top-right"
+                        toastOptions={{
+                            duration: 2500,
+                            style: {
+                                background: "#15171E",
+                                color: "#FFFFFF",
+                                border: "1px solid #252932",
+                            },
+                        }}
+                    />
+
+                </WorkoutProvider>
 
             </body>
         </html>

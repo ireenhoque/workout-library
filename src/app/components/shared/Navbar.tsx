@@ -1,93 +1,96 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 import Logo from "@/assets/logo.png";
+import { useWorkout } from "@/context/WorkoutContext";
 
 const Navbar = () => {
     const pathname = usePathname();
 
-    const isWorkoutActive = pathname === "/workout";
-    const isMyPlanActive = pathname === "/myplan";
+    const {
+        todaysPlan,
+        savedWorkouts,
+    } = useWorkout();
 
     return (
-        <header className="sticky top-0 z-50 border-b border-[#1C1F24] bg-[#0C0D10]">
-            <nav className="container mx-auto flex h-[74px] items-center justify-between px-6">
+        <header className="border-b border-[#1C1F24] bg-[#0C0D10]">
+            <div className="container mx-auto flex h-[74px] items-center justify-between px-6">
 
                 {/* Logo */}
                 <Link
                     href="/"
-                    className="flex items-center gap-3"
+                    className="flex items-center gap-2"
                 >
                     <Image
                         src={Logo}
                         alt="FitLog Logo"
                         width={22}
                         height={22}
-                        className="object-contain"
                     />
 
-                    <span className="text-[17px] font-bold tracking-wide text-white">
+                    <span className="font-bold text-white">
                         FITLOG
                     </span>
                 </Link>
 
-                {/* Navigation Links */}
-                <div className="flex items-center gap-2">
+                {/* Navigation */}
+                <nav className="flex items-center gap-3">
+
                     <Link
-                        href="/workout"
-                        className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
-                            isWorkoutActive
+                        href="/"
+                        className={`rounded-full px-4 py-2 text-xs ${
+                            pathname === "/"
                                 ? "bg-[#1A2600] text-[#CCFF00]"
-                                : "text-[#D1D5DB] hover:text-[#CCFF00]"
+                                : "text-[#D1D5DB]"
                         }`}
                     >
-                        Workout
+                        Workouts
                     </Link>
 
                     <Link
-                        href="/myplan"
-                        className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
-                            isMyPlanActive
+                        href="/my-plan"
+                        className={`rounded-full px-4 py-2 text-xs ${
+                            pathname === "/my-plan"
                                 ? "bg-[#1A2600] text-[#CCFF00]"
-                                : "text-[#D1D5DB] hover:text-[#CCFF00]"
+                                : "text-[#D1D5DB]"
                         }`}
                     >
                         My Plan
                     </Link>
-                </div>
 
-                {/* Status Badges */}
-                <div className="flex items-center gap-5">
+                </nav>
 
-                    {/* Plan */}
+                {/* Counters */}
+                <div className="flex items-center gap-5 text-xs">
+
                     <Link
-                        href="/myplan"
-                        className="flex items-center gap-2 text-[13px] text-[#D1D5DB] transition-colors hover:text-[#CCFF00]"
+                        href="/my-plan"
+                        className="flex items-center gap-2 text-[#D1D5DB]"
                     >
-                        <span>Plan</span>
+                        Plan
 
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#CCFF00] px-1 text-[11px] font-bold text-black">
-                            0
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#CCFF00] px-1 font-bold text-black">
+                            {todaysPlan.length}
                         </span>
                     </Link>
 
-                    {/* Saved */}
                     <Link
-                        href="/saved"
-                        className="flex items-center gap-2 text-[13px] text-[#D1D5DB] transition-colors hover:text-[#CCFF00]"
+                        href="/my-plan"
+                        className="flex items-center gap-2 text-[#D1D5DB]"
                     >
-                        <span>Saved</span>
+                        Saved
 
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-[#454A54] px-1 text-[11px] text-[#9CA3AF]">
-                            0
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-[#454A54] px-1 text-[#9CA3AF]">
+                            {savedWorkouts.length}
                         </span>
                     </Link>
 
                 </div>
-            </nav>
+
+            </div>
         </header>
     );
 };
