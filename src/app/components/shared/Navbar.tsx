@@ -1,9 +1,17 @@
-import React from "react";
-import Logo from "@/assets/logo.png";
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import Logo from "@/assets/logo.png";
 
 const Navbar = () => {
+    const pathname = usePathname();
+
+    const isWorkoutActive = pathname === "/workout";
+    const isMyPlanActive = pathname === "/myplan";
+
     return (
         <header className="sticky top-0 z-50 border-b border-[#1C1F24] bg-[#0C0D10]">
             <nav className="container mx-auto flex h-[74px] items-center justify-between px-6">
@@ -26,33 +34,38 @@ const Navbar = () => {
                     </span>
                 </Link>
 
-                {/* Main Navigation */}
-                <ul className="flex items-center gap-2">
-                    <li>
-                        <Link
-                            href="/workout"
-                            className="block rounded-full bg-[#1A2600] px-4 py-1.5 text-[13px] font-medium text-[#CCFF00] transition-colors duration-200"
-                        >
-                            Workouts
-                        </Link>
-                    </li>
+                {/* Navigation Links */}
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/workout"
+                        className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
+                            isWorkoutActive
+                                ? "bg-[#1A2600] text-[#CCFF00]"
+                                : "text-[#D1D5DB] hover:text-[#CCFF00]"
+                        }`}
+                    >
+                        Workout
+                    </Link>
 
-                    <li>
-                        <Link
-                            href="/myplan"
-                            className="block rounded-full px-4 py-1.5 text-[13px] font-medium text-[#9CA3AF] transition-colors duration-200 hover:text-[#CCFF00]"
-                        >
-                            My Plan
-                        </Link>
-                    </li>
-                </ul>
+                    <Link
+                        href="/myplan"
+                        className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200 ${
+                            isMyPlanActive
+                                ? "bg-[#1A2600] text-[#CCFF00]"
+                                : "text-[#D1D5DB] hover:text-[#CCFF00]"
+                        }`}
+                    >
+                        My Plan
+                    </Link>
+                </div>
 
-                {/* Right Side */}
-                <div className="flex items-center gap-6">
+                {/* Status Badges */}
+                <div className="flex items-center gap-5">
+
                     {/* Plan */}
                     <Link
                         href="/myplan"
-                        className="flex items-center gap-2 text-[13px] text-[#D1D5DB] transition-colors duration-200 hover:text-[#CCFF00]"
+                        className="flex items-center gap-2 text-[13px] text-[#D1D5DB] transition-colors hover:text-[#CCFF00]"
                     >
                         <span>Plan</span>
 
@@ -64,14 +77,15 @@ const Navbar = () => {
                     {/* Saved */}
                     <Link
                         href="/saved"
-                        className="flex items-center gap-2 text-[13px] text-[#D1D5DB] transition-colors duration-200 hover:text-[#CCFF00]"
+                        className="flex items-center gap-2 text-[13px] text-[#D1D5DB] transition-colors hover:text-[#CCFF00]"
                     >
                         <span>Saved</span>
 
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-[#363A42] px-1 text-[11px] text-[#9CA3AF]">
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-[#454A54] px-1 text-[11px] text-[#9CA3AF]">
                             0
                         </span>
                     </Link>
+
                 </div>
             </nav>
         </header>
