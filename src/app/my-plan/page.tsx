@@ -6,6 +6,7 @@ import { Clock3, Flame, Star, X } from "lucide-react";
 
 import { ILift } from "@/type/lift.type";
 import { useWorkout } from "@/context/WorkoutContext";
+import Image from "next/image";
 
 type ActiveTab = "plan" | "saved";
 
@@ -107,11 +108,10 @@ const MyPlanPage = () => {
           <button
             type="button"
             onClick={() => setActiveTab("plan")}
-            className={`px-5 py-3 text-xs font-bold transition ${
-              activeTab === "plan"
+            className={`px-5 py-3 text-xs font-bold transition ${activeTab === "plan"
                 ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
                 : "text-[#6B7280] hover:text-white"
-            }`}
+              }`}
           >
             TODAY'S PLAN
           </button>
@@ -119,11 +119,10 @@ const MyPlanPage = () => {
           <button
             type="button"
             onClick={() => setActiveTab("saved")}
-            className={`px-5 py-3 text-xs font-bold transition ${
-              activeTab === "saved"
+            className={`px-5 py-3 text-xs font-bold transition ${activeTab === "saved"
                 ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
                 : "text-[#6B7280] hover:text-white"
-            }`}
+              }`}
           >
             SAVED
           </button>
@@ -218,13 +217,13 @@ const PlanWorkoutCard = ({
 
       {/* Image */}
       <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-40">
-
-        <img
+        <Image
           src={lift.image}
           alt={lift.name}
-          className="h-full w-full object-cover"
+          fill
+          sizes="(max-width: 640px) 100vw, 160px"
+          className="object-cover"
         />
-
       </div>
 
       {/* Content */}
