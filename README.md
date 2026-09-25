@@ -1,33 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Workout Library
+LiftLog is a modern workout management application that helps users explore exercises, build a daily workout plan, save workouts for later, and track completed exercises.
 
-## Getting Started
+## Technologies Used
+- **Next.js**
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+- **Lucide React**
+- **React Hot Toast**
+- **Next.js Image**
+- **LocalStorage**
+- **REST API**
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
+- **Workout Library**  
+  Browse a collection of workouts with details such as muscle groups, equipment, difficulty, duration, calories, and rating.
+- **Daily Workout Planner**  
+  Add workouts to today's plan with a maximum limit of five exercises.
+- **Save Workouts**  
+  Save exercises for later and access them from the Saved section.
+- **Search & Sort**  
+  Search workouts by name or muscle-group tags and sort planned workouts by duration, calories, or rating.
+- **Workout Progress Tracking**  
+  Mark planned workouts as completed and maintain your workout data across page reloads using localStorage.
+  
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 ## Deploy on Vercel
 
