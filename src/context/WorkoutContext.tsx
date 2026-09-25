@@ -24,9 +24,9 @@ interface WorkoutContextType {
   markAsDone: (id: number) => void;
 }
 
-const WorkoutContext = createContext<WorkoutContextType | undefined>(
-  undefined
-);
+const WorkoutContext = createContext<
+  WorkoutContextType | undefined
+>(undefined);
 
 export const WorkoutProvider = ({
   children,
@@ -35,16 +35,23 @@ export const WorkoutProvider = ({
 }) => {
   const [todaysPlan, setTodaysPlan] = useState<ILift[]>([]);
   const [savedWorkouts, setSavedWorkouts] = useState<ILift[]>([]);
-  const [completedWorkouts, setCompletedWorkouts] = useState<number[]>([]);
+  const [completedWorkouts, setCompletedWorkouts] = useState<
+    number[]
+  >([]);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load saved data
+  /*
+   * Load data from localStorage
+   */
   useEffect(() => {
     try {
       const storedPlan = localStorage.getItem("todaysPlan");
-      const storedSaved = localStorage.getItem("savedWorkouts");
-      const storedCompleted = localStorage.getItem("completedWorkouts");
+      const storedSaved =
+        localStorage.getItem("savedWorkouts");
+      const storedCompleted = localStorage.getItem(
+        "completedWorkouts"
+      );
 
       if (storedPlan) {
         setTodaysPlan(JSON.parse(storedPlan));
@@ -55,16 +62,23 @@ export const WorkoutProvider = ({
       }
 
       if (storedCompleted) {
-        setCompletedWorkouts(JSON.parse(storedCompleted));
+        setCompletedWorkouts(
+          JSON.parse(storedCompleted)
+        );
       }
     } catch (error) {
-      console.error("Failed to load workout data:", error);
+      console.error(
+        "Failed to load workout data:",
+        error
+      );
     } finally {
       setIsHydrated(true);
     }
   }, []);
 
-  // Save today's plan
+  /*
+   * Persist Today's Plan
+   */
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -74,7 +88,9 @@ export const WorkoutProvider = ({
     );
   }, [todaysPlan, isHydrated]);
 
-  // Save saved workouts
+  /*
+   * Persist Saved Workouts
+   */
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -84,7 +100,9 @@ export const WorkoutProvider = ({
     );
   }, [savedWorkouts, isHydrated]);
 
-  // Save completed workouts
+  /*
+   * Persist Completed Workouts
+   */
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -94,6 +112,11 @@ export const WorkoutProvider = ({
     );
   }, [completedWorkouts, isHydrated]);
 
+  /*
+   * Add workout to Today's Plan
+   *
+   * Maximum = 5 workouts
+   */
   const addToPlan = (lift: ILift) => {
     if (todaysPlan.length >= 5) {
       return false;
@@ -115,17 +138,25 @@ export const WorkoutProvider = ({
     return true;
   };
 
+  /*
+   * Remove workout from Today's Plan
+   */
   const removeFromPlan = (id: number) => {
     setTodaysPlan((currentPlan) =>
       currentPlan.filter((item) => item.id !== id)
     );
 
-    // Also remove completed status
+    // Also remove its completed status
     setCompletedWorkouts((currentCompleted) =>
-      currentCompleted.filter((completedId) => completedId !== id)
+      currentCompleted.filter(
+        (completedId) => completedId !== id
+      )
     );
   };
 
+  /*
+   * Save workout
+   */
   const saveWorkout = (lift: ILift) => {
     const alreadyExists = savedWorkouts.some(
       (item) => item.id === lift.id
@@ -143,12 +174,18 @@ export const WorkoutProvider = ({
     return true;
   };
 
+  /*
+   * Remove saved workout
+   */
   const removeSavedWorkout = (id: number) => {
     setSavedWorkouts((currentSaved) =>
       currentSaved.filter((item) => item.id !== id)
     );
   };
 
+  /*
+   * Mark workout as done
+   */
   const markAsDone = (id: number) => {
     setCompletedWorkouts((currentCompleted) => {
       if (currentCompleted.includes(id)) {
