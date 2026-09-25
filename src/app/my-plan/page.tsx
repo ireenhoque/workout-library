@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import {
+  Check,
   ChevronDown,
   Clock3,
   Flame,
@@ -12,11 +13,12 @@ import {
   X,
 } from "lucide-react";
 
+import toast from "react-hot-toast";
+
 import { ILift } from "@/type/lift.type";
 import { useWorkout } from "@/context/WorkoutContext";
 
 type ActiveTab = "plan" | "saved";
-
 type SortOption = "duration" | "calories" | "rating";
 
 const MyPlanPage = () => {
@@ -25,6 +27,8 @@ const MyPlanPage = () => {
     savedWorkouts,
     removeFromPlan,
     removeSavedWorkout,
+    completedWorkouts,
+    markAsDone,
   } = useWorkout();
 
   const [activeTab, setActiveTab] =
@@ -33,13 +37,17 @@ const MyPlanPage = () => {
   const [sortBy, setSortBy] =
     useState<SortOption>("duration");
 
-  // Current list based on active tab
+  /*
+   * Decide which list should be displayed
+   */
   const currentList =
     activeTab === "plan"
       ? todaysPlan
       : savedWorkouts;
 
-  // Sort current list
+  /*
+   * Sort the current list
+   */
   const sortedList = useMemo(() => {
     const sorted = [...currentList];
 
@@ -65,7 +73,9 @@ const MyPlanPage = () => {
     return sorted;
   }, [currentList, sortBy]);
 
-  // Today's Plan metrics
+  /*
+   * Today's Plan metrics
+   */
   const totalMinutes = useMemo(() => {
     return todaysPlan.reduce(
       (total, lift) => total + lift.duration,
@@ -81,13 +91,43 @@ const MyPlanPage = () => {
     );
   }, [todaysPlan]);
 
+  /*
+   * Mark workout as completed
+   */
+  const handleMarkAsDone = (id: number) => {
+    if (completedWorkouts.includes(id)) {
+      toast.error("Workout is already marked as done.");
+      return;
+    }
+
+    markAsDone(id);
+
+    toast.success("Workout marked as done.");
+  };
+
+  /*
+   * Remove workout
+   */
+  const handleRemove = (lift: ILift) => {
+    if (activeTab === "plan") {
+      removeFromPlan(lift.id);
+
+      toast.success(
+        `${lift.name} removed from today's plan.`
+      );
+    } else {
+      removeSavedWorkout(lift.id);
+
+      toast.success(
+        `${lift.name} removed from saved workouts.`
+      );
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#0C0D10] px-4 py-10 sm:px-6 lg:px-8">
       <section className="container mx-auto">
-
-        {/* ========================================
-            PAGE HEADER
-        ========================================= */}
+        {/* Page Header */}
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             MY PLAN
@@ -99,11 +139,8 @@ const MyPlanPage = () => {
           </p>
         </div>
 
-        {/* ========================================
-            METRICS
-        ========================================= */}
+        {/* Metrics */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-
           <MetricCard
             title="Exercises"
             value={todaysPlan.length}
@@ -118,22 +155,15 @@ const MyPlanPage = () => {
             title="Calories"
             value={totalCalories}
           />
-
         </div>
 
-        {/* ========================================
-            TABS + SORT
-        ========================================= */}
+        {/* Tabs + Sort */}
         <div className="mt-8 flex flex-col gap-4 border-b border-[#252932] sm:flex-row sm:items-end sm:justify-between">
-
           {/* Tabs */}
           <div className="flex gap-2">
-
             <button
               type="button"
-              onClick={() =>
-                setActiveTab("plan")
-              }
+              onClick={() => setActiveTab("plan")}
               className={`px-5 py-3 text-xs font-bold transition ${
                 activeTab === "plan"
                   ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
@@ -145,9 +175,7 @@ const MyPlanPage = () => {
 
             <button
               type="button"
-              onClick={() =>
-                setActiveTab("saved")
-              }
+              onClick={() => setActiveTab("saved")}
               className={`px-5 py-3 text-xs font-bold transition ${
                 activeTab === "saved"
                   ? "border-b-2 border-[#CCFF00] text-[#CCFF00]"
@@ -156,14 +184,10 @@ const MyPlanPage = () => {
             >
               SAVED
             </button>
-
           </div>
 
-          {/* ========================================
-              SORT DROPDOWN
-          ========================================= */}
+          {/* Sort Dropdown */}
           <div className="relative mb-2 w-full sm:w-48">
-
             <label
               htmlFor="sort-workouts"
               className="sr-only"
@@ -198,53 +222,44 @@ const MyPlanPage = () => {
               size={16}
               className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#CCFF00]"
             />
-
           </div>
-
         </div>
 
-        {/* ========================================
-            WORKOUT LIST
-        ========================================= */}
+        {/* Workout List */}
         <div className="mt-6">
-
           {sortedList.length === 0 ? (
             <EmptyState
               isPlan={activeTab === "plan"}
             />
           ) : (
             <div className="space-y-4">
-
               {sortedList.map((lift) => (
                 <PlanWorkoutCard
                   key={lift.id}
                   lift={lift}
                   isPlan={activeTab === "plan"}
-                  onRemove={() => {
-                    if (activeTab === "plan") {
-                      removeFromPlan(lift.id);
-                    } else {
-                      removeSavedWorkout(lift.id);
-                    }
-                  }}
+                  isCompleted={completedWorkouts.includes(
+                    lift.id
+                  )}
+                  onMarkAsDone={() =>
+                    handleMarkAsDone(lift.id)
+                  }
+                  onRemove={() =>
+                    handleRemove(lift)
+                  }
                 />
               ))}
-
             </div>
           )}
-
         </div>
-
       </section>
     </main>
   );
 };
 
-
-// =====================================================
-// METRIC CARD
-// =====================================================
-
+/*
+ * Metric Card
+ */
 const MetricCard = ({
   title,
   value,
@@ -254,7 +269,6 @@ const MetricCard = ({
 }) => {
   return (
     <div className="rounded-xl border border-[#252932] bg-[#15171E] p-5">
-
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
         {title}
       </p>
@@ -262,86 +276,108 @@ const MetricCard = ({
       <p className="mt-2 text-3xl font-extrabold text-white">
         {value}
       </p>
-
     </div>
   );
 };
 
-
-// =====================================================
-// PLAN WORKOUT CARD
-// =====================================================
-
+/*
+ * Planned Workout Card
+ */
 const PlanWorkoutCard = ({
   lift,
   isPlan,
+  isCompleted,
+  onMarkAsDone,
   onRemove,
 }: {
   lift: ILift;
   isPlan: boolean;
+  isCompleted: boolean;
+  onMarkAsDone: () => void;
   onRemove: () => void;
 }) => {
   return (
-    <article className="flex flex-col gap-5 rounded-xl border border-[#252932] bg-[#15171E] p-4 sm:flex-row sm:items-center">
-
+    <article
+      className={`flex flex-col gap-5 rounded-xl border bg-[#15171E] p-4 transition sm:flex-row sm:items-center ${
+        isCompleted
+          ? "border-[#CCFF00]/40 opacity-75"
+          : "border-[#252932]"
+      }`}
+    >
       {/* Workout Image */}
       <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-40">
-
         <Image
           src={lift.image}
           alt={lift.name}
           fill
           sizes="(max-width: 640px) 100vw, 160px"
-          className="object-cover"
+          className={`object-cover transition ${
+            isCompleted ? "grayscale" : ""
+          }`}
         />
-
       </div>
 
       {/* Workout Information */}
       <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <h3
+            className={`text-lg font-bold uppercase ${
+              isCompleted
+                ? "text-[#9CA3AF] line-through"
+                : "text-white"
+            }`}
+          >
+            {lift.name}
+          </h3>
 
-        <h3 className="text-lg font-bold uppercase text-white">
-          {lift.name}
-        </h3>
+          {isCompleted && (
+            <span className="rounded-full bg-[#CCFF00]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#CCFF00]">
+              Completed
+            </span>
+          )}
+        </div>
 
         <p className="mt-1 text-sm text-[#9CA3AF]">
           {lift.equipment}
         </p>
 
-        {/* Stats */}
+        {/* Workout Stats */}
         <div className="mt-4 flex flex-wrap items-center gap-5">
-
+          {/* Duration */}
           <div className="flex items-center gap-1.5 text-xs text-[#B8BDC7]">
             <Clock3
               size={14}
               className="text-[#CCFF00]"
             />
+
             {lift.duration} min
           </div>
 
+          {/* Calories */}
           <div className="flex items-center gap-1.5 text-xs text-[#B8BDC7]">
             <Flame
               size={14}
               className="text-[#CCFF00]"
             />
+
             {lift.caloriesBurned} kcal
           </div>
 
+          {/* Rating */}
           <div className="flex items-center gap-1.5 text-xs text-[#B8BDC7]">
             <Star
               size={14}
               className="text-[#CCFF00]"
             />
+
             {lift.rating}
           </div>
-
         </div>
-
       </div>
 
-      {/* Actions */}
+      {/* Action Buttons */}
       <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-
+        {/* View Details */}
         <Link
           href={`/workout/${lift.id}`}
           className="rounded-md border border-[#363A43] px-4 py-2.5 text-xs font-medium text-[#D1D5DB] transition hover:border-[#CCFF00] hover:text-[#CCFF00]"
@@ -349,15 +385,25 @@ const PlanWorkoutCard = ({
           View Details
         </Link>
 
+        {/* Mark as Done */}
         {isPlan && (
           <button
             type="button"
-            className="rounded-md bg-[#CCFF00] px-4 py-2.5 text-xs font-bold text-black transition hover:bg-[#B3E600]"
+            onClick={onMarkAsDone}
+            disabled={isCompleted}
+            className={`flex items-center gap-2 rounded-md px-4 py-2.5 text-xs font-bold transition ${
+              isCompleted
+                ? "cursor-not-allowed bg-[#31351E] text-[#7E8A43]"
+                : "bg-[#CCFF00] text-black hover:bg-[#B3E600]"
+            }`}
           >
-            Mark as Done
+            <Check size={15} />
+
+            {isCompleted ? "Done" : "Mark as Done"}
           </button>
         )}
 
+        {/* Remove */}
         <button
           type="button"
           onClick={onRemove}
@@ -366,18 +412,14 @@ const PlanWorkoutCard = ({
         >
           <X size={15} />
         </button>
-
       </div>
-
     </article>
   );
 };
 
-
-// =====================================================
-// EMPTY STATE
-// =====================================================
-
+/*
+ * Empty State
+ */
 const EmptyState = ({
   isPlan,
 }: {
@@ -385,7 +427,6 @@ const EmptyState = ({
 }) => {
   return (
     <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-[#30343D] bg-[#111318] px-6 text-center">
-
       <h2 className="text-xl font-bold text-white">
         NOTHING HERE YET
       </h2>
@@ -402,7 +443,6 @@ const EmptyState = ({
       >
         GO TO WORKOUTS
       </Link>
-
     </div>
   );
 };

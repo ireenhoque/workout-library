@@ -64,7 +64,7 @@ const Navbar = () => {
                 </nav>
 
                 {/* Counters */}
-                <div className="flex items-center gap-5 text-xs">
+                <div className="flex items-center gap-3 text-xs">
 
                     <Link
                         href="/my-plan"
